@@ -1,18 +1,26 @@
 #!/bin/sh
 
-# PROVIDE: cubesql
-# REQUIRE: DAEMON 
-# BEFORE:  LOGIN
-# KEYWORD: nojail shutdown
+# PROVIDE: ddserver
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
 
 . /etc/rc.subr
 
 name="ddserver"
-command="/usr/local/bin/ddserver-bundle"
+rcvar=ddserver_enable
+load_rc_config $name
+
+ddserver_enable=${ddserver_enable:-"NO"}
+ddserver_user=${ddserver_user:-"www"}
+
+pidfile=/var/run/ddserver.pid
+
+procname="/usr/local/bin/ddserver-bundle"
+command="/usr/sbin/daemon -P ${pidfile} -f ${procname}"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
-restart_cmd="${name}_restart"
+status_cmd="${name}_status"
 
 ddserver_start()
 {
@@ -21,13 +29,12 @@ ddserver_start()
 
 ddserver_stop()
 {
-  killall ddserver-bundle
+  [ -f ${pidfile} ] && kill `cat ${pidfile}`
 }
 
-ddserver_restart()
+ddserver_status()
 {
-  ${command} restart
+  [ -f ${pidfile} ] && echo "${name} is running as pid `cat ${pidfile}`."
 }
 
-load_rc_config $name
 run_rc_command "$1"
