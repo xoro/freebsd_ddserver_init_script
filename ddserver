@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# PROVIDE: cubesql
+# REQUIRE: DAEMON 
+# BEFORE:  LOGIN
+# KEYWORD: nojail shutdown
+
+. /etc/rc.subr
+
+name="ddserver"
+command="/usr/local/bin/ddserver-bundle"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+restart_cmd="${name}_restart"
+
+ddserver_start()
+{
+  ${command}
+}
+
+ddserver_stop()
+{
+  killall ddserver-bundle
+}
+
+ddserver_restart()
+{
+  ${command} restart
+}
+
+load_rc_config $name
+run_rc_command "$1"
